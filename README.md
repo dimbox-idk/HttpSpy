@@ -38,13 +38,12 @@ uhhh, not now.
 
 The following methods are available in the HttpSpy API:
 
-HttpSpy:HookSynRequest(<string url>, <function hook>)  -- Hook into a request with a callback function  
-HttpSpy:BlockUrl(<string url>)                          -- Block a specific URL  
-HttpSpy:WhitelistUrl(<string url>)                       -- Allow a specific URL  
-HttpSpy:ProxyHost(<string host>, <string proxy>)        -- Proxy a specific host to another  
-HttpSpy:RemoveProxy(<string host>)                       -- Remove a proxy for a host  
-HttpSpy:UnHookSynRequest(<string url>)                  -- Unhook a previously hooked request  
+HttpSpy:AddBlacklistedUrl(<string url>)                 -- Block a specific URL  
+HttpSpy:SpoofUrl(<string url>, <string urlToSpoofWith>) -- Allow a specific URL  
+HttpSpy:SpoofUrlResult(<string url>, <string result>)   -- Proxy a specific host to another  
+HttpSpy:Toggle(<bool enabled>)                          -- Remove a proxy for a host  
 HttpSpy.OnRequest:Connect(function(req) ... end)        -- Event triggered when a request is made  
+HttpSpy:Destroy()                                       --  DESTROY httpspy, idk if after that secured scripts will be working
 
 ### Example Usage
 
@@ -59,17 +58,13 @@ HttpSpy.OnRequest:Connect(function(req)
     warn("Request made:", req.Url)    
 end)
 
-HttpSpy:HookSynRequest("https://httpbin.org/get", function(response) 
-    response.Body = "hooked!"
-    return response
-end)
+
 
 print(request({ Url = "https://httpbin.org/get" }).Body)
 
-HttpSpy:UnHookSynRequest("https://httpbin.org/get")
-HttpSpy:ProxyHost("httpbin.org", "google.com")
+HttpSpy:SpoofUrl("httpbin.org/get", "google.com")
 
-print(request({ Url = "https://httpbin.org/get" }).Body)
+print(request({ Url = "http://httpbin.org/get" }).Body)
 
 ## ⚙️ Installation
 
