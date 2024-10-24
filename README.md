@@ -32,7 +32,7 @@ local HttpSpy = loadstring(game:HttpGet("https://raw.githubusercontent.com/dimbo
 
 ## 📸 Preview
 
-![HttpSpy Preview](https://i.imgur.com/hnnMiLA.png)
+uhhh, not now.
 
 ## 📜 API
 
