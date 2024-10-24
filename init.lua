@@ -62,9 +62,6 @@ local function logRequest(url, response)
     end
 end
 
--- Create a BindableEvent for OnRequest
-HttpSpy.OnRequest = Instance.new("BindableEvent")
-
 -- Hooks the HttpGet method
 local function hooked(Url)
     if not SpyEnabled then
@@ -106,8 +103,6 @@ request = function(info)
         return Stored[1](info)
     end
 
-    if not APIEnabled then return end  -- Block execution if API is not enabled
-
     if info.Url then
         local cleanUrl = removeProtocol(info.Url)
         if not table.find(BlacklistedUrls, cleanUrl) then
@@ -131,6 +126,32 @@ request = function(info)
         end
     end
 end
+
+-- Overriding the game metatable to hook into the HttpGet method
+game = setmetatable({}, {
+    __index = function(_, method)
+        local success, response = pcall(function()
+            return oldGame[method]
+        end)
+
+        if method == "HttpGet" then
+            return function(_, url)
+                return hooked(url) or hooked
+            end
+        elseif response and type(response) == "function" then
+            return function(_, func)
+                return response(oldGame, func)
+            end
+        else
+            return oldGame:GetService(method) or oldGame[method]
+        end
+    end
+})
+
+if not APIEnabled then return end
+
+-- Create a BindableEvent for OnRequest
+HttpSpy.OnRequest = Instance.new("BindableEvent")
 
 function HttpSpy.AddBlacklistedUrl(url)
     local cleanUrl = removeProtocol(url)
@@ -179,26 +200,5 @@ function HttpSpy.Destroy()
 
     print2("HttpSpy destroyed and original state restored")
 end
-
--- Overriding the game metatable to hook into the HttpGet method
-game = setmetatable({}, {
-    __index = function(_, method)
-        local success, response = pcall(function()
-            return oldGame[method]
-        end)
-
-        if method == "HttpGet" then
-            return function(_, url)
-                return hooked(url) or hooked
-            end
-        elseif response and type(response) == "function" then
-            return function(_, func)
-                return response(oldGame, func)
-            end
-        else
-            return oldGame:GetService(method) or oldGame[method]
-        end
-    end
-})
 
 return HttpSpy
