@@ -1,6 +1,6 @@
 local HttpSpy = {}
-local env = getgenv and getgenv() or _G or _ENV or Shared or getfenv() or {}
-local oldGame = env.game or game
+local env = getgenv and getgenv() or getfenv() or {}
+local oldGame = cloneref(env.game or game)
 
 local Stored = {
     request
@@ -56,11 +56,12 @@ end
 -- Logging functionality
 local function logRequest(url, response)
     if SaveLogs then
-        local logFile = io.open("HttpSpyLogs.txt", "a") -- Open file in append mode
-        logFile:write(string.format("URL: %s\nResponse: %s\n\n", url, response))
-        logFile:close()
+        local logContent = string.format("URL: %s\nResponse: %s\n\n", url, response)
+        local currentContent = readfile("HttpSpyLogs.txt") or ""
+        writefile("HttpSpyLogs.txt", currentContent .. logContent)
     end
 end
+
 
 -- Hooks the HttpGet method
 local function hooked(Url)
